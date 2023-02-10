@@ -30,7 +30,7 @@ resource "aws_iam_role" "test_role_sagemaker" {
   assume_role_policy = data.aws_iam_policy_document.sagemaker_assume_role_policy.json
 
   inline_policy {
-    name = "access-to-s3"
+    name = "access-to-s33"
     policy = data.aws_iam_policy_document.inline_policy_s3_access.json
   }
 
