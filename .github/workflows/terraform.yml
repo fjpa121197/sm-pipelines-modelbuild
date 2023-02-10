@@ -14,6 +14,9 @@ jobs:
   build:
     environment: aws-test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
 
     steps:
       - uses: actions/checkout@v3
@@ -25,9 +28,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Initialise working directory
+      - name: Terraform init
         run: |
-          terraform -chdir="./terraform" init -input=false
+          terraform init
 
       - name: Check formatting
         run: terraform fmt -check
