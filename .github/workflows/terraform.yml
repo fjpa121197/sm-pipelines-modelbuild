@@ -33,14 +33,17 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Check formatting
+        id: fmt
         run: terraform fmt -check
         continue-on-error: true
-        
+
       - name: Terraform init
+        id: init
         run: |
           terraform init
 
       - name: Validate configuration
+        id: validate
         run: terraform validate -no-color
 
       - name: Generate plan
