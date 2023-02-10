@@ -1,0 +1,59 @@
+name: Push Staging Terraform
+on:
+  push:
+    branches:
+      - staging
+
+env:
+  AWS_REGION: eu-west-2
+  TF_ACTIONS_WORKING_DIR: terraform
+
+
+jobs:
+  build:
+    environment: aws-test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.TF_ACTIONS_WORKING_DIR }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+
+      - uses: hashicorp/setup-terraform@v2
+
+      - name: Check formatting
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform init
+        id: init
+        run: |
+          terraform init
+
+      - name: Validate configuration
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Generate plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: false
+
+      - name: Deploy to AWS
+        id: apply
+        run: terraform apply -auto-approve
+
+
+
+      
+
