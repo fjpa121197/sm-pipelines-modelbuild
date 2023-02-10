@@ -25,13 +25,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Change to terraform directory
+        run: |
+          cd terraform
+          ls
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
 
       - name: Initialise working directory
         run: |
-          cd terraform
           terraform init
 
       - name: Check formatting
