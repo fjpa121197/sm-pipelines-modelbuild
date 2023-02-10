@@ -26,6 +26,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+
+      - uses: hashicorp/setup-terraform@v2
+
       - name: Check formatting
         id: fmt
         run: terraform fmt -check
