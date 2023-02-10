@@ -25,7 +25,9 @@ jobs:
 
 
       - name: Initialise working directory
-        run: terraform init
+        run: |
+        cd terraform
+        terraform init
 
       - name: Check formatting
         run: terraform fmt -check
