@@ -25,14 +25,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Change to terraform directory
-        run: |
-          cd terraform
-          ls
-          
       - name: Initialise working directory
         run: |
-          terraform init
+          terraform -chdir="./terraform" init -input=false
 
       - name: Check formatting
         run: terraform fmt -check
@@ -44,56 +39,6 @@ jobs:
         id: plan
         run: terraform plan -no-color
         continue-on-error: true
-
-      - name: Get plan details
-        id: plan-details
-        run: |
-          PLAN="`cat << 'EOF'
-          ${{ steps.plan.outputs.stdout }}
-          EOF
-          `"
-          PLAN="$(echo "$PLAN" | grep -v -e 'Initializing plugins' -e 'Refreshing state...' -e 'Reading...' -e 'Read complete')"
-          SUMMARY="$(echo "$PLAN" | grep -e 'No changes.' -e 'Plan:')"
-          SUMMARY="$(echo "$PLAN" | grep -e 'No changes.' -e 'Plan:' -e 'Operation failed:' || 'unknown')"
-          URL="$(echo "$PLAN" | grep -A1 'To view this run' | grep -v "To view this run")"
-          if ((${#PLAN} > 5800 )); then
-            PLAN="$(echo "$PLAN" | head -c 5800)"
-            PLAN="$(echo -e "$PLAN\n\n--- Truncated ---\nSee Terraform Cloud for full plan:\n$URL")"
-          fi
-          echo "plan<<EOF" >> $GITHUB_OUTPUT
-          echo "${PLAN}" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "summary=${SUMMARY}" >> $GITHUB_OUTPUT
-          echo "url=${URL}" >> $GITHUB_OUTPUT
-      - name: Find plan comment
-        uses: peter-evans/find-comment@v1
-        id: find-comment
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: "github-actions[bot]"
-          body-includes: "### 📖 Terraform plan: ${{needs.changes.outputs.project_name}}-${{ matrix.environment }}"
-
-      - name: Create or update plan comment
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          comment-id: ${{ steps.find-comment.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ### 📖 Terraform plan: ${{needs.changes.outputs.project_name}}-${{ matrix.environment }}
-            **${{ steps.plan-details.outputs.summary }}**
-            [View plan on Terraform Cloud](${{ steps.plan-details.outputs.url }})
-            <details>
-              <summary>Show plan output</summary>
-              ```
-              ${{ steps.plan-details.outputs.plan }}
-              ```
-            </details>
-            *Actor: @${{ github.actor }}, Event: `${{ github.event_name }}`*
-          edit-mode: replace
-
-      - name: Check plan status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
 
 
 
