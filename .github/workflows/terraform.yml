@@ -1,5 +1,10 @@
 name: Pull request / Terraform
-on: pull_request
+on:
+  push:
+    branches-ignore:
+      - master
+    paths-ignore:
+      - '**.md'
 
 env:
   AWS_REGION: eu-west-2
