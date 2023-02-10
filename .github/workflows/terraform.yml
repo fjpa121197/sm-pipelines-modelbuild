@@ -1,7 +1,6 @@
 name: Pull request / Terraform
 on: pull_request
 
-
 env:
   AWS_REGION: eu-west-2
 
