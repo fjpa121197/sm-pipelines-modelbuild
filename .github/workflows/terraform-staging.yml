@@ -5,11 +5,13 @@ on:
       - staging
     paths:
       - 'terraform/**'
+      - '.github/**'
   push:
     branches:
       - staging
     paths:
       - 'terraform/**'
+      - '.github/**'
 
 env:
   TF_ACTIONS_WORKING_DIR: terraform
