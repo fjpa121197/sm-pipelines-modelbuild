@@ -1,0 +1,96 @@
+name: Terraform Staging - Plan
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'terraform/**'
+      - '.github/**'
+  push:
+    branches:
+      - staging
+    paths:
+      - 'terraform/**'
+      - '.github/**'
+
+env:
+  TF_ACTIONS_WORKING_DIR: terraform
+
+
+jobs:
+  build:
+    environment: aws-test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.TF_ACTIONS_WORKING_DIR }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+
+      - name: Check formatting
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform init
+        id: init
+        run: |
+          terraform init
+
+      - name: Validate configuration
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Generate plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: true
+
+      - name: Create PR comment
+        uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          STDOUT: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.STDOUT}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.TF_ACTIONS_WORKING_DIR }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+
+
+
+      
+
