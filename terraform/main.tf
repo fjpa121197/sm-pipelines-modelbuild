@@ -7,6 +7,16 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
+terraform {
+  cloud {
+    organization = "PachisPachis"
+
+    workspaces {
+      name = "sm-pipeline-modelbuild-prod"
+    }
+  }
+}
+
 # Set the configuration for the aws provider, which is a plug in that Terraform uses to create and manage resources in aws.
 # For example, one can set up credentials of AWS account in here, or set what profile to use if you have multiple stored credentials
 
