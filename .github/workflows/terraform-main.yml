@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - 'terraform/**'
+      - '.github/**'
 
 env:
   AWS_REGION: eu-west-2
@@ -12,7 +13,7 @@ env:
 
 
 jobs:
-  build:
+  terraform-plan:
     environment: aws-test
     runs-on: ubuntu-latest
     defaults:
