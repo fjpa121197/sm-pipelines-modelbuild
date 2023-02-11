@@ -21,6 +21,8 @@ terraform {
 # For example, one can set up credentials of AWS account in here, or set what profile to use if you have multiple stored credentials
 
 provider "aws" {
+
+  region = var.region
 }
 
 # Important Outputs
