@@ -2,7 +2,7 @@
 region = "eu-west-2"
 
 # Variables to define Environment
-env          = "dev"
+env          = "prod"
 
 # SageMaker Full access policy arn
 
